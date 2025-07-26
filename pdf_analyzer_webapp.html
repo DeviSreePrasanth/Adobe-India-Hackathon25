@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adobe India Hackathon 2025 - PDF Analyzer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Classic Professional Color System */
+        --primary-50: #f8fafc;
+        --primary-100: #f1f5f9;
+        --primary-500: #334155;
+        --primary-600: #1e293b;
+        --primary-700: #0f172a;
+        --primary-900: #020617;
+
+        --secondary-500: #475569;
+        --secondary-600: #374151;
+
+        --accent-500: #d97706;
+        --accent-600: #b45309;
+
+        --success-500: #059669;
+        --success-600: #047857;
+
+        --error-500: #dc2626;
+        --error-600: #b91c1c;
+
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+
+        /* Spacing System - Reduced */
+        --space-1: 0.2rem;
+        --space-2: 0.4rem;
+        --space-3: 0.6rem;
+        --space-4: 0.8rem;
+        --space-5: 1rem;
+        --space-6: 1.2rem;
+        --space-8: 1.6rem;
+        --space-10: 2rem;
+        --space-12: 2.4rem;
+        --space-16: 3.2rem;
+        --space-20: 4rem;
+
+        /* Border Radius */
+        --radius-sm: 0.25rem;
+        --radius-md: 0.375rem;
+        --radius-lg: 0.5rem;
+        --radius-xl: 0.75rem;
+        --radius-2xl: 1rem;
+        --radius-full: 9999px;
+
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+          0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+          0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+        /* Typography */
+        --font-weight-light: 300;
+        --font-weight-normal: 400;
+        --font-weight-medium: 500;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+        --font-weight-extrabold: 800;
+
+        /* Transitions */
+        --transition-fast: 150ms ease-in-out;
+        --transition-normal: 300ms ease-in-out;
+        --transition-slow: 500ms ease-in-out;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          var(--primary-700) 0%,
+          var(--secondary-600) 50%,
+          var(--primary-900) 100%
+        );
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: var(--gray-800);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 14px;
+      }
+
+      .header {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: var(--space-5) 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.05) 50%,
+          transparent 70%
+        );
+        animation: shimmer 3s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .header-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--space-6);
+        text-align: center;
+        color: white;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header h1 {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: var(--font-weight-extrabold);
+        margin-bottom: var(--space-2);
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header p {
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        font-weight: var(--font-weight-medium);
+        opacity: 0.9;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: var(--space-6) auto;
+        padding: 0 var(--space-6);
+        flex: 1;
+        width: 100%;
+      }
+
+      .challenge-selector {
+        display: flex;
+        justify-content: center;
+        margin-bottom: var(--space-8);
+        gap: var(--space-3);
+        padding: var(--space-2);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-2xl);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-lg);
+        max-width: 550px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: var(--space-8);
+      }
+
+      .challenge-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: var(--space-3) var(--space-5);
+        border-radius: var(--radius-xl);
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: var(--font-weight-semibold);
+        font-family: inherit;
+        transition: var(--transition-normal);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        text-decoration: none;
+        min-height: 44px;
+      }
+
+      .challenge-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: var(--transition-normal);
+      }
+
+      .challenge-btn:hover::before {
+        left: 100%;
+      }
+
+      .challenge-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .challenge-btn.active {
+        background: linear-gradient(
+          135deg,
+          var(--primary-500),
+          var(--secondary-500)
+        );
+        border-color: var(--primary-400);
+        box-shadow: var(--shadow-xl);
+        color: white;
+      }
+
+      .challenge-btn.active::before {
+        display: none;
+      }
+
+      .challenge-panel {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: var(--radius-2xl);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-xl);
+        backdrop-filter: blur(20px);
+        margin-bottom: var(--space-6);
+        display: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .challenge-panel::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-500),
+          var(--accent-500)
+        );
+      }
+
+      .challenge-panel.active {
+        display: block;
+        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .challenge-title {
+        color: var(--gray-800);
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--space-4);
+        text-align: center;
+        position: relative;
+        letter-spacing: -0.02em;
+      }
+
+      .challenge-title::after {
+        content: "";
+        display: block;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-500),
+          var(--accent-500)
+        );
+        margin: var(--space-3) auto 0;
+        border-radius: var(--radius-full);
+      }
+
+      .challenge-description {
+        text-align: center;
+        color: var(--gray-600);
+        margin-bottom: var(--space-8);
+        font-size: 1rem;
+        font-weight: var(--font-weight-medium);
+        max-width: 550px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: var(--space-8);
+        line-height: 1.5;
+      }
+
+      .upload-area {
+        border: 2px dashed var(--gray-300);
+        border-radius: var(--radius-xl);
+        padding: var(--space-12);
+        text-align: center;
+        transition: var(--transition-normal);
+        cursor: pointer;
+        margin-bottom: var(--space-6);
+        background: linear-gradient(145deg, var(--gray-50), var(--gray-100));
+        position: relative;
+        overflow: hidden;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .upload-area::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          circle at center,
+          transparent 0%,
+          rgba(51, 65, 85, 0.03) 100%
+        );
+        opacity: 0;
+        transition: var(--transition-normal);
+      }
+
+      .upload-area:hover {
+        border-color: var(--primary-500);
+        background: linear-gradient(
+          145deg,
+          var(--primary-50),
+          var(--primary-100)
+        );
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+
+      .upload-area:hover::before {
+        opacity: 1;
+      }
+
+      .upload-area.drag-over {
+        border-color: var(--success-500);
+        background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .upload-icon {
+        font-size: 2.8rem;
+        color: var(--gray-400);
+        margin-bottom: var(--space-3);
+        transition: var(--transition-normal);
+      }
+
+      .upload-area:hover .upload-icon {
+        color: var(--primary-500);
+        transform: scale(1.05);
+      }
+
+      .upload-text {
+        font-size: 1.1rem;
+        font-weight: var(--font-weight-semibold);
+        color: var(--gray-700);
+        margin-bottom: var(--space-2);
+      }
+
+      .upload-subtext {
+        color: var(--gray-500);
+        font-size: 0.85rem;
+        font-weight: var(--font-weight-medium);
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      .persona-selector {
+        margin-bottom: var(--space-8);
+      }
+
+      .persona-selector h3 {
+        margin-bottom: var(--space-5);
+        color: var(--gray-800);
+        font-size: 1.1rem;
+        font-weight: var(--font-weight-semibold);
+      }
+
+      .persona-header {
+        text-align: center;
+        background: linear-gradient(
+          145deg,
+          var(--primary-50),
+          var(--primary-100)
+        );
+        padding: var(--space-4) var(--space-6);
+        border-radius: var(--radius-xl);
+        border: 2px solid var(--primary-200);
+        box-shadow: var(--shadow-sm);
+        font-size: 1.2rem !important;
+        font-weight: var(--font-weight-bold) !important;
+        color: var(--primary-700) !important;
+        margin-bottom: var(--space-6) !important;
+      }
+
+      .persona-header i {
+        margin-right: var(--space-2);
+        font-size: 1.3rem;
+      }
+
+      .custom-persona-section {
+        margin-top: var(--space-6);
+        padding-top: var(--space-4);
+      }
+
+      .custom-persona-divider {
+        text-align: center;
+        margin: var(--space-4) 0;
+        position: relative;
+      }
+
+      .custom-persona-divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--gray-300);
+        z-index: 1;
+      }
+
+      .custom-persona-divider span {
+        background: white;
+        padding: 0 var(--space-4);
+        color: var(--gray-500);
+        font-weight: var(--font-weight-medium);
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .custom-persona-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+
+      .custom-persona-label {
+        font-size: 1rem;
+        font-weight: var(--font-weight-semibold);
+        color: var(--gray-700);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+
+      .custom-persona-input {
+        padding: var(--space-4);
+        border: 2px solid var(--gray-300);
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-family: inherit;
+        transition: var(--transition-normal);
+        background: linear-gradient(145deg, white, var(--gray-50));
+        box-shadow: var(--shadow-sm);
+      }
+
+      .custom-persona-input:focus {
+        outline: none;
+        border-color: var(--accent-500);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        background: white;
+      }
+
+      .custom-persona-input::placeholder {
+        color: var(--gray-400);
+        font-style: italic;
+      }
+
+      .custom-persona-input.active {
+        border-color: var(--accent-500);
+        background: linear-gradient(145deg, #fefbf3, #fef3c7);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+      }
+
+      .persona-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-4);
+        margin-top: var(--space-5);
+      }
+
+      .persona-card {
+        background: linear-gradient(145deg, #ffffff, var(--gray-50));
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        cursor: pointer;
+        transition: var(--transition-normal);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .persona-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          var(--primary-500),
+          var(--accent-500)
+        );
+        opacity: 0;
+        transition: var(--transition-normal);
+      }
+
+      .persona-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(51, 65, 85, 0.05),
+          rgba(217, 119, 6, 0.05)
+        );
+        opacity: 0;
+        transition: var(--transition-normal);
+      }
+
+      .persona-card:hover {
+        border-color: var(--primary-500);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-xl);
+        background: linear-gradient(145deg, #ffffff, var(--primary-50));
+      }
+
+      .persona-card:hover::before {
+        opacity: 0.8;
+      }
+
+      .persona-card:hover::after {
+        opacity: 1;
+      }
+
+      .persona-card:hover .persona-title {
+        color: white;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      .persona-card:hover .persona-description {
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .persona-card:hover .persona-icon {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      }
+
+      .persona-card.selected {
+        border-color: var(--accent-500);
+        background: linear-gradient(145deg, #fefbf3, #fef3c7);
+        box-shadow: var(--shadow-xl);
+        transform: translateY(-3px);
+      }
+
+      .persona-card.selected::before {
+        background: linear-gradient(
+          135deg,
+          var(--primary-500),
+          var(--accent-500)
+        );
+        opacity: 0.8;
+      }
+
+      .persona-card.selected::after {
+        background: linear-gradient(
+          135deg,
+          rgba(51, 65, 85, 0.05),
+          rgba(217, 119, 6, 0.05)
+        );
+        opacity: 1;
+      }
+
+      .persona-card.selected .persona-title {
+        color: white;
+        font-weight: var(--font-weight-bold);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      .persona-card.selected .persona-description {
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .persona-card.selected .persona-icon {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        transform: scale(1.05);
+      }
+
+      .persona-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-3);
+        position: relative;
+        z-index: 1;
+        transition: var(--transition-normal);
+      }
+
+      .persona-card:hover .persona-icon {
+        transform: scale(1.05);
+      }
+
+      .persona-title {
+        font-size: 1.1rem;
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: var(--space-2);
+        color: var(--gray-800);
+        position: relative;
+        z-index: 1;
+      }
+
+      .persona-description {
+        color: var(--gray-600);
+        font-size: 0.85rem;
+        font-weight: var(--font-weight-medium);
+        line-height: 1.4;
+        position: relative;
+        z-index: 1;
+      }
+
+      .process-btn {
+        background: linear-gradient(
+          135deg,
+          var(--success-500),
+          var(--success-600)
+        );
+        color: white;
+        border: none;
+        padding: var(--space-4) var(--space-8);
+        border-radius: var(--radius-full);
+        font-size: 1rem;
+        font-weight: var(--font-weight-semibold);
+        font-family: inherit;
+        cursor: pointer;
+        transition: var(--transition-normal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        margin: var(--space-6) auto;
+        box-shadow: var(--shadow-md);
+        min-height: 44px;
+        min-width: 180px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .process-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: var(--transition-fast);
+      }
+
+      .process-btn:hover::before {
+        left: 100%;
+      }
+
+      .process-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+        background: linear-gradient(
+          135deg,
+          var(--success-600),
+          var(--success-700)
+        );
+      }
+
+      .process-btn:active {
+        transform: translateY(0);
+      }
+
+      .process-btn:disabled {
+        background: linear-gradient(135deg, var(--gray-400), var(--gray-500));
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .process-btn:disabled::before {
+        display: none;
+      }
+
+      .results-section {
+        margin-top: var(--space-8);
+        display: none;
+      }
+
+      .results-section.active {
+        display: block;
+        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .results-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-600),
+          var(--secondary-600)
+        );
+        color: white;
+        padding: var(--space-6);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: var(--font-weight-semibold);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .results-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        animation: shimmer 2s infinite;
+      }
+
+      .results-content {
+        background: white;
+        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        border-top: none;
+      }
+
+      .result-item {
+        background: linear-gradient(145deg, var(--gray-50), white);
+        border-left: 3px solid var(--primary-500);
+        padding: var(--space-4);
+        margin-bottom: var(--space-3);
+        border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+        transition: var(--transition-normal);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .result-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        background: linear-gradient(
+          135deg,
+          var(--primary-50),
+          var(--primary-100)
+        );
+        transition: var(--transition-normal);
+      }
+
+      .result-item:hover::before {
+        width: 100%;
+      }
+
+      .result-item:hover {
+        transform: translateX(4px);
+        box-shadow: var(--shadow-md);
+      }
+
+      .result-title {
+        font-weight: var(--font-weight-semibold);
+        color: var(--gray-800);
+        margin-bottom: var(--space-2);
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .result-text {
+        color: var(--gray-600);
+        line-height: 1.5;
+        position: relative;
+        z-index: 1;
+        font-weight: var(--font-weight-medium);
+        font-size: 0.9rem;
+      }
+
+      .result-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: var(--space-2);
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        position: relative;
+        z-index: 1;
+      }
+
+      .importance-badge {
+        background: linear-gradient(
+          135deg,
+          var(--primary-500),
+          var(--primary-600)
+        );
+        color: white;
+        padding: var(--space-1) var(--space-2);
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: var(--font-weight-semibold);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: var(--space-6) 0;
+        padding: var(--space-6);
+      }
+
+      .loading.active {
+        display: block;
+        animation: slideInUp 0.4s ease-out;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--gray-200);
+        border-top: 3px solid var(--primary-500);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: var(--space-3);
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading p {
+        color: var(--gray-600);
+        font-weight: var(--font-weight-medium);
+        font-size: 1rem;
+      }
+
+      .error-message {
+        background: linear-gradient(135deg, var(--error-500), var(--error-600));
+        color: white;
+        padding: var(--space-3);
+        border-radius: var(--radius-lg);
+        margin: var(--space-3) 0;
+        display: none;
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.9rem;
+      }
+
+      .error-message.active {
+        display: block;
+        animation: slideInUp 0.4s ease-out;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+
+      .stat-card {
+        background: linear-gradient(145deg, #ffffff, var(--gray-50));
+        padding: var(--space-6);
+        border-radius: var(--radius-xl);
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        transition: var(--transition-normal);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          var(--primary-500),
+          var(--accent-500)
+        );
+        opacity: 0;
+        transition: var(--transition-normal);
+      }
+
+      .stat-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        opacity: 0;
+        transition: var(--transition-normal);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .stat-card:hover::before {
+        opacity: 1;
+      }
+
+      .stat-card:hover::after {
+        opacity: 1;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: var(--font-weight-extrabold);
+        color: var(--primary-600);
+        margin-bottom: var(--space-1);
+        position: relative;
+        z-index: 1;
+      }
+
+      .stat-label {
+        color: var(--gray-600);
+        font-size: 0.85rem;
+        font-weight: var(--font-weight-semibold);
+        position: relative;
+        z-index: 1;
+      }
+
+      .footer {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        padding: var(--space-8) 0;
+        text-align: center;
+        color: white;
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+      }
+
+      .footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.5),
+          transparent
+        );
+      }
+
+      .footer p {
+        margin-bottom: var(--space-1);
+        font-weight: var(--font-weight-medium);
+        font-size: 0.9rem;
+      }
+
+      .footer p:last-child {
+        opacity: 0.8;
+        font-size: 0.8rem;
+      }
+
+      /* JSON Display Styles */
+      .json-container {
+        background: var(--gray-900);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        margin-top: var(--space-4);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--gray-700);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .json-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--gray-700);
+      }
+
+      .json-title {
+        color: var(--gray-100);
+        font-size: 1rem;
+        font-weight: var(--font-weight-semibold);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+
+      .json-copy-btn {
+        background: var(--primary-500);
+        color: white;
+        border: none;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: var(--transition-normal);
+        display: flex;
+        align-items: center;
+        gap: var(--space-1);
+      }
+
+      .json-copy-btn:hover {
+        background: var(--primary-600);
+        transform: translateY(-1px);
+      }
+
+      .json-display {
+        background: var(--gray-800);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: var(--gray-100);
+        overflow-x: auto;
+        max-height: 600px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      /* JSON Syntax Highlighting */
+      .json-key {
+        color: #7dd3fc;
+        font-weight: var(--font-weight-medium);
+      }
+
+      .json-string {
+        color: #86efac;
+      }
+
+      .json-number {
+        color: #fbbf24;
+      }
+
+      .json-boolean {
+        color: #f87171;
+      }
+
+      .json-null {
+        color: #9ca3af;
+      }
+
+      .json-bracket {
+        color: var(--gray-300);
+        font-weight: var(--font-weight-bold);
+      }
+
+      .json-comma {
+        color: var(--gray-400);
+      }
+
+      /* Scrollbar styling for JSON display */
+      .json-display::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .json-display::-webkit-scrollbar-track {
+        background: var(--gray-900);
+        border-radius: var(--radius-sm);
+      }
+
+      .json-display::-webkit-scrollbar-thumb {
+        background: var(--gray-600);
+        border-radius: var(--radius-sm);
+      }
+
+      /* File info styling */
+      .file-info {
+        text-align: center;
+        margin-bottom: var(--space-5);
+        padding: var(--space-4);
+        background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--success-200);
+        color: var(--success-700);
+        font-weight: var(--font-weight-semibold);
+        font-size: 0.9rem;
+      }
+
+      .uploaded-file {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: var(--radius-md);
+        margin: var(--space-1) 0;
+        transition: var(--transition-normal);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .uploaded-file:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .file-name {
+        font-weight: var(--font-weight-semibold);
+        color: var(--gray-800);
+        flex: 1;
+        text-align: left;
+        margin-left: var(--space-1);
+      }
+
+      .file-size {
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        font-weight: var(--font-weight-medium);
+      }
+
+      .files-collection {
+        text-align: left;
+      }
+
+      .collection-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--space-3);
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .files-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .container {
+          padding: 0 var(--space-5);
+        }
+
+        .challenge-panel {
+          padding: var(--space-6);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.6rem;
+        }
+
+        .header-content {
+          padding: 0 var(--space-4);
+        }
+
+        .challenge-selector {
+          flex-direction: column;
+          align-items: center;
+          padding: var(--space-2);
+          gap: var(--space-2);
+        }
+
+        .challenge-btn {
+          width: 100%;
+          min-width: auto;
+          font-size: 0.85rem;
+          min-height: 40px;
+        }
+
+        .container {
+          padding: 0 var(--space-3);
+          margin: var(--space-4) auto;
+        }
+
+        .challenge-panel {
+          padding: var(--space-5);
+        }
+
+        .upload-area {
+          padding: var(--space-8) var(--space-3);
+          min-height: 120px;
+        }
+
+        .persona-grid {
+          grid-template-columns: 1fr;
+          gap: var(--space-3);
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: var(--space-3);
+        }
+
+        .stat-card {
+          padding: var(--space-4);
+        }
+
+        .stat-number {
+          font-size: 1.6rem;
+        }
+
+        .process-btn {
+          width: 100%;
+          padding: var(--space-3) var(--space-5);
+          font-size: 0.9rem;
+          min-height: 40px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header h1 {
+          font-size: 1.4rem;
+        }
+
+        .challenge-title {
+          font-size: 1.3rem;
+        }
+
+        .upload-area {
+          padding: var(--space-6) var(--space-2);
+        }
+
+        .upload-icon {
+          font-size: 2.2rem;
+        }
+
+        .persona-card {
+          padding: var(--space-4);
+          min-height: 120px;
+        }
+
+        .persona-icon {
+          font-size: 2rem;
+        }
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
+        .challenge-panel {
+          background: rgba(17, 24, 39, 0.95);
+          color: var(--gray-100);
+        }
+
+        .challenge-title {
+          color: var(--gray-100);
+        }
+
+        .challenge-description {
+          color: var(--gray-300);
+        }
+
+        .persona-card {
+          background: linear-gradient(145deg, var(--gray-800), var(--gray-900));
+          border-color: var(--gray-700);
+        }
+
+        .persona-title {
+          color: var(--gray-100);
+        }
+
+        .persona-description {
+          color: var(--gray-300);
+        }
+      }
+
+      /* Accessibility improvements */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* Focus styles for better accessibility */
+      .challenge-btn:focus,
+      .persona-card:focus,
+      .process-btn:focus,
+      .upload-area:focus {
+        outline: 2px solid var(--primary-500);
+        outline-offset: 2px;
+      }
+
+      /* High contrast support */
+      @media (prefers-contrast: high) {
+        .challenge-btn.active {
+          background: #000;
+          color: #fff;
+          border-color: #fff;
+        }
+
+        .process-btn {
+          background: #000;
+          border: 2px solid #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-content">
+        <h1><i class="fas fa-file-pdf"></i> PDF Analyzer</h1>
+        <p>Adobe India Hackathon 2025 - Connecting the Dots Challenge</p>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="challenge-selector">
+        <button class="challenge-btn active" onclick="showChallenge('1a')">
+          <i class="fas fa-file-alt"></i>
+          Challenge 1a - PDF Processing
+        </button>
+        <button class="challenge-btn" onclick="showChallenge('1b')">
+          <i class="fas fa-users"></i>
+          Challenge 1b - Persona Analysis
+        </button>
+      </div>
+
+      <!-- Challenge 1a Panel -->
+      <div id="challenge1a" class="challenge-panel active">
+        <h2 class="challenge-title">
+          <i
+            class="fas fa-file-pdf"
+            style="color: var(--error-500); margin-right: var(--space-2)"
+          ></i>
+          PDF Structure Extraction
+        </h2>
+        <p class="challenge-description">
+          Upload a PDF to extract its structure, headings, and generate a
+          detailed outline with advanced analysis capabilities
+        </p>
+
+        <div
+          class="upload-area"
+          onclick="document.getElementById('pdf-file-1a').click()"
+        >
+          <div class="upload-icon">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <div class="upload-text">Click to upload PDF or drag & drop</div>
+          <div class="upload-subtext">
+            Supports PDF files up to 50 pages • Maximum 10MB
+          </div>
+          <input
+            type="file"
+            id="pdf-file-1a"
+            class="file-input"
+            accept=".pdf"
+            onchange="handleFileUpload1a(this)"
+          />
+        </div>
+
+        <div id="file-info-1a" class="file-info" style="display: none"></div>
+
+        <button
+          id="process-btn-1a"
+          class="process-btn"
+          onclick="processChallenge1a()"
+          disabled
+        >
+          <i class="fas fa-magic"></i>
+          Extract PDF Structure
+        </button>
+
+        <div class="loading" id="loading-1a">
+          <div class="spinner"></div>
+          <p>Processing PDF... Please wait</p>
+        </div>
+
+        <div class="error-message" id="error-1a"></div>
+
+        <div class="results-section" id="results-1a">
+          <div class="results-header">
+            <i class="fas fa-chart-bar"></i> Extraction Results
+          </div>
+          <div class="results-content">
+            <div class="stats-grid" id="stats-1a"></div>
+            <div id="outline-results"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Challenge 1b Panel -->
+      <div id="challenge1b" class="challenge-panel">
+        <h2 class="challenge-title">
+          <i
+            class="fas fa-user-friends"
+            style="color: var(--accent-500); margin-right: var(--space-2)"
+          ></i>
+          Persona-Based Analysis
+        </h2>
+        <p class="challenge-description">
+          Upload multiple PDFs and get personalized content analysis based on
+          your professional role and specific requirements
+        </p>
+
+        <div class="persona-selector">
+          <h3 class="persona-header">
+            <i class="fas fa-user-circle" style="color: var(--primary-500)"></i>
+            Select Your Persona:
+          </h3>
+          <div class="persona-grid">
+            <div
+              class="persona-card"
+              onclick="selectPersona('Travel Planner', this)"
+              tabindex="0"
+            >
+              <div class="persona-icon">
+                <i class="fas fa-map-marked-alt"></i>
+              </div>
+              <div class="persona-title">Travel Planner</div>
+              <div class="persona-description">
+                Focus on itineraries, accommodations, and attractions
+              </div>
+            </div>
+            <div
+              class="persona-card"
+              onclick="selectPersona('HR Professional', this)"
+              tabindex="0"
+            >
+              <div class="persona-icon">
+                <i class="fas fa-user-tie"></i>
+              </div>
+              <div class="persona-title">HR Professional</div>
+              <div class="persona-description">
+                Emphasize forms, compliance, and workflows
+              </div>
+            </div>
+            <div
+              class="persona-card"
+              onclick="selectPersona('Food Contractor', this)"
+              tabindex="0"
+            >
+              <div class="persona-icon">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <div class="persona-title">Food Contractor</div>
+              <div class="persona-description">
+                Highlight recipes, ingredients, and catering
+              </div>
+            </div>
+          </div>
+
+          <div class="custom-persona-section">
+            <div class="custom-persona-divider">
+              <span>or</span>
+            </div>
+            <div class="custom-persona-input-group">
+              <label for="custom-persona-input" class="custom-persona-label">
+                <i class="fas fa-edit" style="color: var(--accent-500)"></i>
+                Enter Custom Persona:
+              </label>
+              <input
+                type="text"
+                id="custom-persona-input"
+                class="custom-persona-input"
+                placeholder="e.g., Marketing Manager, Software Developer, Teacher..."
+                onchange="handleCustomPersona(this.value)"
+                oninput="handleCustomPersonaInput(this.value)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="upload-area"
+          onclick="document.getElementById('pdf-files-1b').click()"
+        >
+          <div class="upload-icon">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <div class="upload-text">Click to upload PDFs or drag & drop</div>
+          <div class="upload-subtext">
+            Upload multiple PDF files for collection analysis • Maximum 5 files
+          </div>
+          <input
+            type="file"
+            id="pdf-files-1b"
+            class="file-input"
+            accept=".pdf"
+            multiple
+            onchange="handleFileUpload1b(this)"
+          />
+        </div>
+
+        <div id="file-info-1b" class="file-info" style="display: none"></div>
+
+        <button
+          id="process-btn-1b"
+          class="process-btn"
+          onclick="processChallenge1b()"
+          disabled
+        >
+          <i class="fas fa-search"></i>
+          Analyze Collection
+        </button>
+
+        <div class="loading" id="loading-1b">
+          <div class="spinner"></div>
+          <p>Analyzing document collection... Please wait</p>
+        </div>
+
+        <div class="error-message" id="error-1b"></div>
+
+        <div class="results-section" id="results-1b">
+          <div class="results-header">
+            <i class="fas fa-bullseye"></i> Persona Analysis Results
+          </div>
+          <div class="results-content">
+            <div class="stats-grid" id="stats-1b"></div>
+            <div id="sections-results"></div>
+            <div id="analysis-results"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>
+        <i class="fas fa-copyright"></i> 2025 Adobe India Hackathon - Connecting
+        the Dots Challenge
+      </p>
+      <p>Rethinking PDF Reading Through Intelligent Analysis</p>
+    </footer>
+
+    <script>
+      // Global variables
+      let selectedPersona = null;
+      let uploadedFiles1a = null;
+      let uploadedFiles1b = [];
+
+      // Challenge switching
+      function showChallenge(challenge) {
+        // Update buttons
+        document.querySelectorAll(".challenge-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        // Update panels
+        document.querySelectorAll(".challenge-panel").forEach((panel) => {
+          panel.classList.remove("active");
+        });
+        document
+          .getElementById(`challenge${challenge}`)
+          .classList.add("active");
+
+        // Reset results
+        resetResults();
+      }
+
+      // Persona selection
+      function selectPersona(persona, element) {
+        selectedPersona = persona;
+        document.querySelectorAll(".persona-card").forEach((card) => {
+          card.classList.remove("selected");
+        });
+        element.classList.add("selected");
+
+        // Clear custom persona input when selecting a predefined persona
+        const customInput = document.getElementById("custom-persona-input");
+        customInput.value = "";
+        customInput.classList.remove("active");
+
+        updateProcessButton1b();
+      }
+
+      // Handle custom persona input
+      function handleCustomPersona(value) {
+        if (value.trim()) {
+          selectedPersona = value.trim();
+          // Clear predefined persona selections
+          document.querySelectorAll(".persona-card").forEach((card) => {
+            card.classList.remove("selected");
+          });
+          updateProcessButton1b();
+        }
+      }
+
+      // Handle custom persona input changes
+      function handleCustomPersonaInput(value) {
+        const input = document.getElementById("custom-persona-input");
+        if (value.trim()) {
+          input.classList.add("active");
+          selectedPersona = value.trim();
+          // Clear predefined persona selections
+          document.querySelectorAll(".persona-card").forEach((card) => {
+            card.classList.remove("selected");
+          });
+        } else {
+          input.classList.remove("active");
+          selectedPersona = null;
+        }
+        updateProcessButton1b();
+      }
+
+      // File upload handlers
+      function handleFileUpload1a(input) {
+        const file = input.files[0];
+        if (file && file.type === "application/pdf") {
+          uploadedFiles1a = file;
+          document.getElementById("file-info-1a").innerHTML = `
+                    <div class="uploaded-file">
+                        <i class="fas fa-file-pdf" style="color: var(--error-500); font-size: 1.2rem;"></i>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">(${formatFileSize(
+                          file.size
+                        )})</span>
+                        <i class="fas fa-check-circle" style="color: var(--success-500); margin-left: var(--space-2);"></i>
+                    </div>
+                `;
+          document.getElementById("file-info-1a").style.display = "block";
+          document.getElementById("process-btn-1a").disabled = false;
+        } else {
+          showError("1a", "Please upload a valid PDF file.");
+        }
+      }
+
+      function handleFileUpload1b(input) {
+        const files = Array.from(input.files).filter(
+          (file) => file.type === "application/pdf"
+        );
+        if (files.length > 0) {
+          uploadedFiles1b = files;
+          document.getElementById("file-info-1b").innerHTML = `
+                    <div class="files-collection">
+                        <div class="collection-header">
+                            <i class="fas fa-folder-open" style="color: var(--primary-500); font-size: 1.1rem;"></i>
+                            <span style="font-weight: 600; margin-left: var(--space-2);">${
+                              files.length
+                            } PDF files uploaded:</span>
+                        </div>
+                        <div class="files-list">
+                            ${files
+                              .map(
+                                (file) =>
+                                  `<div class="uploaded-file">
+                                    <i class="fas fa-file-pdf" style="color: var(--error-500);"></i>
+                                    <span class="file-name">${file.name}</span>
+                                    <span class="file-size">(${formatFileSize(
+                                      file.size
+                                    )})</span>
+                                    <i class="fas fa-check-circle" style="color: var(--success-500);"></i>
+                                   </div>`
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+                `;
+          document.getElementById("file-info-1b").style.display = "block";
+          updateProcessButton1b();
+        } else {
+          showError("1b", "Please upload valid PDF files.");
+        }
+      }
+
+      function updateProcessButton1b() {
+        const btn = document.getElementById("process-btn-1b");
+        btn.disabled = !(selectedPersona && uploadedFiles1b.length > 0);
+      }
+
+      // File processing functions
+      async function processChallenge1a() {
+        if (!uploadedFiles1a) return;
+
+        showLoading("1a");
+        hideError("1a");
+
+        try {
+          // Simulate PDF processing
+          await simulateProcessing(2000);
+
+          const result = await simulateChallenge1aProcessing(uploadedFiles1a);
+          displayResults1a(result);
+        } catch (error) {
+          showError("1a", "Error processing PDF: " + error.message);
+        } finally {
+          hideLoading("1a");
+        }
+      }
+
+      async function processChallenge1b() {
+        if (!selectedPersona || uploadedFiles1b.length === 0) return;
+
+        showLoading("1b");
+        hideError("1b");
+
+        try {
+          // Simulate collection analysis
+          await simulateProcessing(3000);
+
+          const result = await simulateChallenge1bProcessing(
+            uploadedFiles1b,
+            selectedPersona
+          );
+          displayResults1b(result);
+        } catch (error) {
+          showError("1b", "Error analyzing collection: " + error.message);
+        } finally {
+          hideLoading("1b");
+        }
+      }
+
+      // Simulation functions (replace with actual API calls)
+      async function simulateChallenge1aProcessing(file) {
+        // Simulate PDF structure extraction
+        return {
+          title: `Analysis of ${file.name}`,
+          outline: [
+            { level: "H1", text: "Introduction", page: 1 },
+            { level: "H2", text: "Background and Context", page: 2 },
+            { level: "H2", text: "Methodology", page: 4 },
+            { level: "H3", text: "Data Collection", page: 5 },
+            { level: "H3", text: "Analysis Framework", page: 7 },
+            { level: "H1", text: "Results and Findings", page: 10 },
+            { level: "H2", text: "Key Insights", page: 12 },
+            { level: "H2", text: "Statistical Analysis", page: 15 },
+            { level: "H1", text: "Conclusions", page: 20 },
+            { level: "H2", text: "Recommendations", page: 22 },
+            { level: "H2", text: "Future Work", page: 24 },
+          ],
+          pageCount: 25,
+          processingTime: "2.3s",
+        };
+      }
+
+      async function simulateChallenge1bProcessing(files, persona) {
+        // Simulate persona-based analysis
+        const sections = files.flatMap((file, index) => [
+          {
+            document: file.name,
+            section_title: `Key Section ${index + 1} - ${getPersonaFocusArea(
+              persona
+            )}`,
+            importance_rank: Math.floor(Math.random() * 5) + 1,
+            page_number: Math.floor(Math.random() * 20) + 1,
+          },
+          {
+            document: file.name,
+            section_title: `Secondary Topic ${index + 1}`,
+            importance_rank: Math.floor(Math.random() * 5) + 1,
+            page_number: Math.floor(Math.random() * 20) + 1,
+          },
+        ]);
+
+        const analysis = files.map((file) => ({
+          document: file.name,
+          refined_text: `This section contains highly relevant information for ${persona.toLowerCase()}s, focusing on ${getPersonaFocusArea(
+            persona
+          ).toLowerCase()}. The content provides actionable insights and practical guidance that directly addresses the specific needs and requirements of this professional role.`,
+          page_number: Math.floor(Math.random() * 20) + 1,
+        }));
+
+        return {
+          metadata: {
+            input_documents: files.map((f) => f.name),
+            persona: persona,
+            job_to_be_done: getPersonaJobDescription(persona),
+          },
+          extracted_sections: sections.sort(
+            (a, b) => a.importance_rank - b.importance_rank
+          ),
+          subsection_analysis: analysis,
+        };
+      }
+
+      function getPersonaFocusArea(persona) {
+        const areas = {
+          "Travel Planner": "Itinerary Planning",
+          "HR Professional": "Compliance Management",
+          "Food Contractor": "Menu Development",
+        };
+        return areas[persona] || "Professional Focus";
+      }
+
+      function getPersonaJobDescription(persona) {
+        const jobs = {
+          "Travel Planner":
+            "Plan comprehensive travel experiences and itineraries",
+          "HR Professional":
+            "Manage employee onboarding and compliance processes",
+          "Food Contractor": "Develop catering menus for corporate events",
+        };
+        return jobs[persona] || "Professional task execution";
+      }
+
+      // Display functions
+      function displayResults1a(result) {
+        const statsHtml = `
+                <div class="stat-card">
+                    <div class="stat-number">${result.outline.length}</div>
+                    <div class="stat-label">Sections Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${result.pageCount}</div>
+                    <div class="stat-label">Total Pages</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${result.processingTime}</div>
+                    <div class="stat-label">Processing Time</div>
+                </div>
+            `;
+
+        const jsonOutput = {
+          challenge: "1a",
+          task: "PDF Structure Extraction",
+          timestamp: new Date().toISOString(),
+          input: {
+            filename: result.title.replace("Analysis of ", ""),
+            processing_time: result.processingTime,
+          },
+          output: {
+            document_structure: {
+              total_pages: result.pageCount,
+              sections_found: result.outline.length,
+              outline: result.outline.map((item) => ({
+                level: item.level,
+                title: item.text,
+                page_number: item.page,
+              })),
+            },
+            metadata: {
+              extraction_method: "AI-powered structure analysis",
+              confidence_score: 0.95,
+              processing_status: "completed",
+            },
+          },
+        };
+
+        document.getElementById("stats-1a").innerHTML = statsHtml;
+        document.getElementById("outline-results").innerHTML =
+          createJsonDisplay(jsonOutput, "PDF Structure Analysis Results");
+        document.getElementById("results-1a").classList.add("active");
+      }
+
+      function displayResults1b(result) {
+        const statsHtml = `
+                <div class="stat-card">
+                    <div class="stat-number">${result.metadata.input_documents.length}</div>
+                    <div class="stat-label">Documents Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${result.extracted_sections.length}</div>
+                    <div class="stat-label">Sections Extracted</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${result.subsection_analysis.length}</div>
+                    <div class="stat-label">Content Pieces</div>
+                </div>
+            `;
+
+        const jsonOutput = {
+          challenge: "1b",
+          task: "Persona-Based Document Analysis",
+          timestamp: new Date().toISOString(),
+          input: {
+            persona: result.metadata.persona,
+            job_to_be_done: result.metadata.job_to_be_done,
+            input_documents: result.metadata.input_documents,
+            document_count: result.metadata.input_documents.length,
+          },
+          output: {
+            extracted_sections: result.extracted_sections.map((section) => ({
+              document: section.document,
+              section_title: section.section_title,
+              importance_rank: section.importance_rank,
+              page_number: section.page_number,
+              relevance_score: (6 - section.importance_rank) * 0.2, // Convert rank to score
+            })),
+            content_analysis: result.subsection_analysis.map((analysis) => ({
+              document: analysis.document,
+              page_number: analysis.page_number,
+              refined_text: analysis.refined_text,
+              persona_relevance: "high",
+            })),
+            summary: {
+              total_sections: result.extracted_sections.length,
+              high_priority_sections: result.extracted_sections.filter(
+                (s) => s.importance_rank <= 2
+              ).length,
+              persona_match_confidence: 0.92,
+              processing_status: "completed",
+            },
+          },
+        };
+
+        document.getElementById("stats-1b").innerHTML = statsHtml;
+
+        const sectionsJsonDisplay = createJsonDisplay(
+          jsonOutput,
+          "Persona Analysis Results"
+        );
+        document.getElementById("sections-results").innerHTML =
+          sectionsJsonDisplay;
+        document.getElementById("analysis-results").innerHTML = "";
+        document.getElementById("results-1b").classList.add("active");
+      }
+
+      // Helper function to create JSON display
+      function createJsonDisplay(jsonData, title) {
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        const highlightedJson = highlightJson(jsonString);
+
+        return `
+          <div class="json-container">
+            <div class="json-header">
+              <div class="json-title">
+                <i class="fas fa-code"></i>
+                ${title}
+              </div>
+              <button class="json-copy-btn" onclick="copyJsonToClipboard(this)">
+                <i class="fas fa-copy"></i>
+                Copy JSON
+              </button>
+            </div>
+            <div class="json-display">${highlightedJson}</div>
+          </div>
+        `;
+      }
+
+      // JSON syntax highlighting function
+      function highlightJson(json) {
+        return json
+          .replace(/("[\w\s_-]+")(\s*:)/g, '<span class="json-key">$1</span>$2')
+          .replace(/:\s*(".*?")/g, ': <span class="json-string">$1</span>')
+          .replace(/:\s*(\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+          .replace(
+            /:\s*(true|false)/g,
+            ': <span class="json-boolean">$1</span>'
+          )
+          .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>')
+          .replace(/([{}[\]])/g, '<span class="json-bracket">$1</span>')
+          .replace(/(,)$/gm, '<span class="json-comma">$1</span>');
+      }
+
+      // Copy JSON to clipboard function
+      function copyJsonToClipboard(button) {
+        const jsonContainer = button.closest(".json-container");
+        const jsonDisplay = jsonContainer.querySelector(".json-display");
+        const jsonText = jsonDisplay.textContent;
+
+        navigator.clipboard
+          .writeText(jsonText)
+          .then(() => {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.style.background = "var(--success-500)";
+
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.style.background = "var(--primary-500)";
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy JSON: ", err);
+          });
+      }
+
+      // Utility functions
+      function showLoading(challenge) {
+        document.getElementById(`loading-${challenge}`).classList.add("active");
+      }
+
+      function hideLoading(challenge) {
+        document
+          .getElementById(`loading-${challenge}`)
+          .classList.remove("active");
+      }
+
+      function showError(challenge, message) {
+        const errorEl = document.getElementById(`error-${challenge}`);
+        errorEl.textContent = message;
+        errorEl.classList.add("active");
+      }
+
+      function hideError(challenge) {
+        document
+          .getElementById(`error-${challenge}`)
+          .classList.remove("active");
+      }
+
+      function resetResults() {
+        document.querySelectorAll(".results-section").forEach((section) => {
+          section.classList.remove("active");
+        });
+        document.querySelectorAll(".error-message").forEach((error) => {
+          error.classList.remove("active");
+        });
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+      }
+
+      function simulateProcessing(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      // Drag and drop functionality
+      document.querySelectorAll(".upload-area").forEach((area) => {
+        area.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          area.classList.add("drag-over");
+        });
+
+        area.addEventListener("dragleave", (e) => {
+          e.preventDefault();
+          area.classList.remove("drag-over");
+        });
+
+        area.addEventListener("drop", (e) => {
+          e.preventDefault();
+          area.classList.remove("drag-over");
+
+          const files = e.dataTransfer.files;
+          const challengeId = area.closest(".challenge-panel").id;
+
+          if (challengeId === "challenge1a") {
+            if (files.length === 1 && files[0].type === "application/pdf") {
+              uploadedFiles1a = files[0];
+              handleFileUpload1a({ files: files });
+            }
+          } else if (challengeId === "challenge1b") {
+            const pdfFiles = Array.from(files).filter(
+              (file) => file.type === "application/pdf"
+            );
+            if (pdfFiles.length > 0) {
+              uploadedFiles1b = pdfFiles;
+              handleFileUpload1b({ files: pdfFiles });
+            }
+          }
+        });
+      });
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("PDF Analyzer Web App Initialized");
+      });
+    </script>
+  </body>
+</html>
