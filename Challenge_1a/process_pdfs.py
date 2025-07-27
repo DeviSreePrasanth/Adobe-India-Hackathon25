@@ -1,189 +1,166 @@
-import os
+import fitz  # PyMuPDF
 import json
-import re
 from pathlib import Path
-from typing import List, Dict, Any
-import pypdf
-from dataclasses import dataclass
+import os
+import re
+from collections import Counter
 
-@dataclass 
-class OutlineItem:
-    level: str
-    text: str
-    page: int
+# --- Smart Path Configuration ---
+# This block automatically detects if we are in Docker and sets paths accordingly.
+IS_DOCKER = Path("/app/input").exists()
 
-class PDFProcessor:
-    def __init__(self):
-        # Patterns for detecting headings based on common formatting
-        self.heading_patterns = [
-            # Chapter/Section numbers
-            (r'^(?:Chapter|Section|Part)\s+\d+[:\.\s](.+)', 'H1'),
-            (r'^\d+\.\s+(.+)', 'H1'),
-            (r'^\d+\.\d+\s+(.+)', 'H2'),
-            (r'^\d+\.\d+\.\d+\s+(.+)', 'H3'),
-            
-            # All caps headings (likely major sections)
-            (r'^([A-Z\s]{3,}[A-Z])$', 'H1'),
-            
-            # Title case with certain keywords
-            (r'^(Introduction|Conclusion|Summary|Overview|Background|Methodology|Results|Discussion|References)$', 'H1'),
-            (r'^(Abstract|Acknowledgments|Appendix)$', 'H1'),
-            
-            # Lines that are significantly shorter and capitalized
-            (r'^([A-Z][a-z\s]{5,40})$', 'H2'),
-        ]
+if IS_DOCKER:
+    INPUT_DIR, OUTPUT_DIR = Path("/app/input"), Path("/app/output")
+else:
+    BASE_DIR = Path(__file__).parent
+    INPUT_DIR = BASE_DIR / "sample_dataset/pdfs"
+    OUTPUT_DIR = BASE_DIR / "sample_dataset/outputs"
 
-    def extract_text_with_page_info(self, pdf_path: str) -> List[tuple]:
-        """Extract text from PDF with page numbers"""
-        text_pages = []
-        
-        with open(pdf_path, 'rb') as file:
-            pdf_reader = pypdf.PdfReader(file)
-            
-            for page_num, page in enumerate(pdf_reader.pages, 1):
-                try:
-                    text = page.extract_text()
-                    if text.strip():
-                        text_pages.append((text, page_num))
-                except Exception as e:
-                    print(f"Error extracting text from page {page_num}: {e}")
-                    continue
-        
-        return text_pages
+def get_pdf_title(doc, pdf_path):
+    """
+    Intelligently extracts the title from the PDF.
+    1. Checks metadata.
+    2. Looks for the largest font text on the first page.
+    3. Falls back to a cleaned-up filename.
+    """
+    # 1. Try metadata
+    if doc.metadata and doc.metadata.get('title'):
+        title = doc.metadata['title'].strip()
+        if title and len(title) > 5 and title.lower() != 'untitled':
+            return title
 
-    def detect_title(self, first_page_text: str) -> str:
-        """Extract title from first page"""
-        lines = [line.strip() for line in first_page_text.split('\n') if line.strip()]
-        
-        if not lines:
-            return "Untitled Document"
-        
-        # Look for the first substantial line that could be a title
-        for line in lines[:10]:  # Check first 10 lines
-            if len(line) > 10 and len(line) < 200:
-                # Skip lines that look like headers/footers
-                if not re.match(r'^\d+$|^page\s+\d+|^chapter\s+\d+', line.lower()):
-                    return line
-        
-        return lines[0] if lines else "Untitled Document"
+    # 2. Try largest font on first page
+    try:
+        page = doc[0]
+        blocks = page.get_text("dict", sort=True)["blocks"]
+        if blocks:
+            max_font_size = 0
+            potential_title = ""
+            for b in blocks:
+                if "lines" in b:
+                    for l in b["lines"]:
+                        if "spans" in l:
+                            for s in l["spans"]:
+                                if s["size"] > max_font_size:
+                                    max_font_size = s["size"]
+                                    potential_title = s["text"]
+            # Clean up potential title and check if it's meaningful
+            potential_title = potential_title.strip()
+            if len(potential_title) > 4 and not potential_title.isnumeric():
+                 return potential_title
+    except Exception:
+        pass # Ignore errors in title finding
 
-    def extract_outline(self, text_pages: List[tuple]) -> List[OutlineItem]:
-        """Extract document outline based on text patterns"""
-        outline_items = []
-        
-        for text, page_num in text_pages:
-            lines = text.split('\n')
-            
-            for line in lines:
-                line = line.strip()
-                if not line or len(line) < 3:
-                    continue
-                
-                # Check each heading pattern
-                for pattern, level in self.heading_patterns:
-                    match = re.match(pattern, line, re.MULTILINE)
-                    if match:
-                        heading_text = match.group(1) if match.groups() else line
-                        heading_text = heading_text.strip()
-                        
-                        # Avoid duplicates and very short headings
-                        if (len(heading_text) >= 3 and 
-                            not any(item.text.lower() == heading_text.lower() 
-                                   for item in outline_items)):
-                            outline_items.append(OutlineItem(level, heading_text, page_num))
-                        break
-        
-        # If no headings found, create basic structure
-        if not outline_items and text_pages:
-            outline_items.append(OutlineItem('H1', 'Document Content', 1))
-        
-        return outline_items
+    # 3. Fallback to filename
+    return pdf_path.stem.replace('_', ' ').replace('-', ' ').title()
 
-    def process_pdf(self, pdf_path: str) -> Dict[str, Any]:
-        """Process a single PDF file"""
-        print(f"Processing {pdf_path}...")
+def generate_heuristic_outline(doc):
+    """
+    Generates a 'best-effort' outline if no official one exists.
+    It identifies headings based on font size.
+    """
+    print("No official outline found. Generating a heuristic-based outline...")
+    outline = []
+    font_counts = Counter()
+    
+    # First pass: Determine the most common font size (body text)
+    for page_num, page in enumerate(doc):
+        blocks = page.get_text("dict")["blocks"]
+        for b in blocks:
+            if "lines" in b:
+                for l in b["lines"]:
+                    if "spans" in l and l["spans"]:
+                        font_counts[round(l["spans"][0]["size"])] += 1
+
+    if not font_counts:
+        return []
+
+    # The most common font size is likely the body text
+    body_font_size = font_counts.most_common(1)[0][0]
+    
+    # Identify heading sizes (e.g., anything > 20% larger than body text)
+    heading_sizes = sorted([size for size in font_counts if size > body_font_size * 1.2], reverse=True)
+    
+    # Create a mapping from font size to heading level (e.g., largest is level 1)
+    size_to_level = {size: level + 1 for level, size in enumerate(heading_sizes)}
+
+    # Second pass: Extract text that matches heading sizes
+    for page_num, page in enumerate(doc):
+        blocks = page.get_text("dict")["blocks"]
+        for b in blocks:
+            if "lines" in b:
+                for l in b["lines"]:
+                    if "spans" in l and l["spans"]:
+                        span = l["spans"][0]
+                        font_size = round(span["size"])
+                        if font_size in size_to_level:
+                            text = l["spans"][0]["text"].strip()
+                            # Filter out short or irrelevant text
+                            if len(text) > 2 and not text.isnumeric():
+                                # *** CHANGE 1: FORMAT HEADING LEVEL ***
+                                heading_level = f"H{size_to_level[font_size]}"
+                                outline.append({
+                                    "level": heading_level,
+                                    "text": text,
+                                    "page": page_num + 1
+                                })
+    return outline
+
+
+def process_pdf_file(pdf_path):
+    """
+    Extracts title and outline, with a fallback to generate the outline if needed.
+    """
+    print(f"Processing {pdf_path.name}...")
+    try:
+        doc = fitz.open(pdf_path)
         
-        try:
-            # Extract text with page information
-            text_pages = self.extract_text_with_page_info(pdf_path)
-            
-            if not text_pages:
-                return {
-                    "title": "Empty Document",
-                    "outline": []
-                }
-            
-            # Extract title from first page
-            title = self.detect_title(text_pages[0][0])
-            
-            # Extract outline
-            outline_items = self.extract_outline(text_pages)
-            
-            # Convert to required format
+        # 1. Get the document title
+        title = get_pdf_title(doc, pdf_path)
+
+        # 2. Try to get the official outline (Table of Contents)
+        toc = doc.get_toc()
+        
+        if toc:
+            print("Found official outline (TOC).")
+            # *** CHANGE 2: FORMAT HEADING LEVEL ***
+            # Format the official outline to match the schema
             outline = [
-                {
-                    "level": item.level,
-                    "text": item.text,
-                    "page": item.page
-                }
-                for item in outline_items
+                {"level": f"H{item[0]}", "text": str(item[1]), "page": int(item[2])}
+                for item in toc
             ]
-            
-            return {
-                "title": title,
-                "outline": outline
-            }
-            
-        except Exception as e:
-            print(f"Error processing {pdf_path}: {e}")
-            return {
-                "title": f"Error Processing: {Path(pdf_path).stem}",
-                "outline": [
-                    {
-                        "level": "H1",
-                        "text": "Processing Error",
-                        "page": 1
-                    }
-                ]
-            }
+        else:
+            # If no official TOC, generate one heuristically
+            outline = generate_heuristic_outline(doc)
 
-def process_pdfs():
-    """Main processing function"""
-    # Get input and output directories
-    input_dir = Path("/app/input")
-    output_dir = Path("/app/output")
+        # Construct the final JSON
+        output_data = {"title": title, "outline": outline}
+        
+        doc.close()
+
+        # Save the output JSON file
+        output_filename = OUTPUT_DIR / f"{pdf_path.stem}.json"
+        with open(output_filename, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, indent=4, ensure_ascii=False)
+        print(f"Successfully generated {output_filename.name}")
+
+    except Exception as e:
+        print(f"FATAL ERROR processing {pdf_path.name}: {e}")
+
+def main():
+    """Main function to find and process all PDF files."""
+    print(f"Starting PDF processing... (Running {'in Docker' if IS_DOCKER else 'Locally'})")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Create output directory if it doesn't exist
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Initialize processor
-    processor = PDFProcessor()
-    
-    # Get all PDF files
-    pdf_files = list(input_dir.glob("*.pdf"))
-    
+    pdf_files = list(INPUT_DIR.glob("*.pdf"))
     if not pdf_files:
-        print("No PDF files found in input directory")
+        print(f"No PDF files found in {INPUT_DIR}.")
         return
-    
-    print(f"Found {len(pdf_files)} PDF files to process")
-    
+
     for pdf_file in pdf_files:
-        try:
-            # Process the PDF
-            result = processor.process_pdf(str(pdf_file))
-            
-            # Create output JSON file
-            output_file = output_dir / f"{pdf_file.stem}.json"
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(result, f, indent=2, ensure_ascii=False)
-            
-            print(f"Successfully processed {pdf_file.name} -> {output_file.name}")
-            
-        except Exception as e:
-            print(f"Failed to process {pdf_file.name}: {e}")
+        process_pdf_file(pdf_file)
+
+    print("All PDF files processed.")
 
 if __name__ == "__main__":
-    print("Starting PDF processing...")
-    process_pdfs() 
-    print("PDF processing completed!")
+    main()
